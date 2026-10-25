@@ -16,53 +16,84 @@ https://codepen.io/medeirosrich/pen/bvRORN
 -->
 
 <html>
-<meta charset="UTF-8">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <!-- CSS styles to arrange everything on the page -->
     <style>
-        .grid-container {
+        body {
+            margin: 0 16px 24px;
+            background: #ffffff;
+            color: #000000;
+        }
+
+        h3 {
+            margin: 16px 0 12px;
+        }
+
+        /* Charts scale to the width of their container */
+        svg {
+            display: block;
+            width: 100%;
+            height: auto;
+        }
+
+        .layout {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: flex-start;
+            gap: 16px 32px;
+        }
+
+        /* Overview: one card per food (consumption map, emissions map, label),
+           wrapping into as many columns as fit */
+        #previews {
+            flex: 1 1 100%;
             display: grid;
-            grid-template-columns: auto auto auto auto auto auto auto auto auto auto auto;
-            visibility: visible;
-            postition:relative;
+            grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+            gap: 8px;
         }
 
-        .grid-item {
-            font: 20px sans-serif;
-            text-align: center;
-
+        .food-card {
+            cursor: pointer;
         }
 
-        .grid-container2 {
-            display: grid;
-            grid-template-columns: auto;
-            visibility: collapse;
-            position:relative;
+        /* Zoom view: maps beside the bar chart, stacking on narrow screens */
+        #detail {
+            display: none;
+            flex: 1 1 320px;
+            max-width: 600px;
         }
 
-        .grid-item2 {
-            font: 20px sans-serif;
-            text-align: center;
+        #button {
+            font-size: 14px;
+            padding: 6px 12px;
+            margin-bottom: 8px;
+            cursor: pointer;
         }
 
-        #button{
-            width: 100;
-        }
-
-        #previews, #detail {
-            position: absolute;
-            top: 50;
-            left: 0;
-            z-index: 1000;
-            padding-bottom: 45px;
-        }
         #bar-graph {
-            position: absolute;
-            top: 200;
-            left: 200;
-            z-index: 1000;
-            padding-bottom: 45px;
+            flex: 1 1 100%;
+            max-width: 1100px;
+            overflow-x: auto;
+        }
+
+        /* Keep the bar chart's labels readable; scroll sideways on small screens */
+        #container23 {
+            min-width: 640px;
+        }
+
+        body.zoomed #previews {
+            display: none;
+        }
+
+        body.zoomed #detail {
+            display: block;
+        }
+
+        body.zoomed #bar-graph {
+            flex: 2 1 480px;
         }
     </style>
     <!--CSS style for the tooltip-->
@@ -71,7 +102,7 @@ https://codepen.io/medeirosrich/pen/bvRORN
             position: absolute;
             text-align: left;
             width: 250px;
-            /*height: 28px;         */
+            max-width: calc(100vw - 32px);
             padding: 2px;
             font: 12px sans-serif;
             background: lightgrey;
@@ -93,177 +124,83 @@ https://codepen.io/medeirosrich/pen/bvRORN
 <script src="https://d3js.org/d3-scale.v3.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3-legend/2.25.6/d3-legend.min.js"></script>
 
-<!-- grid setup -->
-<div class="container">
-    <div class="row">
-        <div class="col">
-            <h3>
-                Global Consumption and CO2 Emissions of Different Foods
-            </h3>
+<h3>Global Consumption and CO2 Emissions of Different Foods</h3>
+
+<div class="layout">
+
+    <!-- Overview: small map multiples, one card per food type -->
+    <div id="previews">
+        <div class="food-card">
+            <svg id="container1" viewBox="15 10 130 90"><g id="body"></g></svg>
+            <svg id="container12" viewBox="15 10 130 90"><g id="body12"></g></svg>
+            <svg id="label1" viewBox="0 8 150 32"><g id="l1"></g></svg>
+        </div>
+        <div class="food-card">
+            <svg id="container2" viewBox="15 10 130 90"><g id="body2"></g></svg>
+            <svg id="container13" viewBox="15 10 130 90"><g id="body13"></g></svg>
+            <svg id="label2" viewBox="0 8 150 32"><g id="l2"></g></svg>
+        </div>
+        <div class="food-card">
+            <svg id="container3" viewBox="15 10 130 90"><g id="body3"></g></svg>
+            <svg id="container14" viewBox="15 10 130 90"><g id="body14"></g></svg>
+            <svg id="label3" viewBox="0 8 150 32"><g id="l3"></g></svg>
+        </div>
+        <div class="food-card">
+            <svg id="container4" viewBox="15 10 130 90"><g id="body4"></g></svg>
+            <svg id="container15" viewBox="15 10 130 90"><g id="body15"></g></svg>
+            <svg id="label4" viewBox="0 8 150 32"><g id="l4"></g></svg>
+        </div>
+        <div class="food-card">
+            <svg id="container5" viewBox="15 10 130 90"><g id="body5"></g></svg>
+            <svg id="container16" viewBox="15 10 130 90"><g id="body16"></g></svg>
+            <svg id="label5" viewBox="0 8 150 32"><g id="l5"></g></svg>
+        </div>
+        <div class="food-card">
+            <svg id="container6" viewBox="15 10 130 90"><g id="body6"></g></svg>
+            <svg id="container17" viewBox="15 10 130 90"><g id="body17"></g></svg>
+            <svg id="label6" viewBox="0 8 150 32"><g id="l6"></g></svg>
+        </div>
+        <div class="food-card">
+            <svg id="container7" viewBox="15 10 130 90"><g id="body7"></g></svg>
+            <svg id="container18" viewBox="15 10 130 90"><g id="body18"></g></svg>
+            <svg id="label7" viewBox="0 8 150 32"><g id="l7"></g></svg>
+        </div>
+        <div class="food-card">
+            <svg id="container8" viewBox="15 10 130 90"><g id="body8"></g></svg>
+            <svg id="container19" viewBox="15 10 130 90"><g id="body19"></g></svg>
+            <svg id="label8" viewBox="0 8 150 32"><g id="l8"></g></svg>
+        </div>
+        <div class="food-card">
+            <svg id="container9" viewBox="15 10 130 90"><g id="body9"></g></svg>
+            <svg id="container20" viewBox="15 10 130 90"><g id="body20"></g></svg>
+            <svg id="label9" viewBox="0 8 150 32"><g id="l9"></g></svg>
+        </div>
+        <div class="food-card">
+            <svg id="container10" viewBox="15 10 130 90"><g id="body10"></g></svg>
+            <svg id="container21" viewBox="15 10 130 90"><g id="body21"></g></svg>
+            <svg id="label10" viewBox="0 8 150 32"><g id="l10"></g></svg>
+        </div>
+        <div class="food-card">
+            <svg id="container11" viewBox="15 10 130 90"><g id="body11"></g></svg>
+            <svg id="container22" viewBox="15 10 130 90"><g id="body22"></g></svg>
+            <svg id="label11" viewBox="0 8 150 32"><g id="l11"></g></svg>
         </div>
     </div>
 
-
-    <!-- Container for the small map multiples -->
-    <div class="grid-container" id = "previews">
-
-        <div class="grid-item"> <svg id="container" height="100" width="150">
-            <g id="body" transform="translate(0,0)"></g>
-        </svg></div>
-
-        <div class="grid-item"> <svg id="container2" height="100" width="150">
-            <g id="body2" transform="translate(0,0)"></g>
-        </svg></div>
-
-        <div class="grid-item"><svg id="container3" height="100" width="150">
-            <g id="body3" transform="translate(0,0)"></g>
-        </svg></div>
-
-        <div class="grid-item"> <svg id="container4" height="100" width="150">
-            <g id="body4" transform="translate(0,0)"></g>
-        </svg></div>
-
-        <div class="grid-item"> <svg id="container5" height="100" width="150">
-            <g id="body5" transform="translate(0,0)"></g>
-        </svg></div>
-
-        <div class="grid-item"> <svg id="container6"height="100" width="150">
-            <g id="body6" transform="translate(0,0)"></g>
-        </svg></div>
-
-        <div class="grid-item"> <svg id="container7" height="100" width="150">
-            <g id="body7" transform="translate(0,0)"></g>
-        </svg></div>
-
-        <div class="grid-item"><svg id="container8" height="100" width="150">
-            <g id="body8" transform="translate(0,0)"></g>
-        </svg></div>
-
-        <div class="grid-item"> <svg id="container9" height="100" width="150">
-            <g id="body9" transform="translate(0,0)"></g>
-        </svg></div>
-
-        <div class="grid-item"><svg id="container10" height="100" width="150">
-            <g id="body10" transform="translate(0,0)"></g>
-        </svg></div>
-
-        <div class="grid-item"><svg id="container11" height="100" width="150">
-            <g id="body11" transform="translate(0,0)"></g>
-        </svg></div>
-
-        <div class="grid-item"><svg id="container12" height="100" width="150">
-            <g id="body12" transform="translate(0,0)"></g>
-        </svg></div>
-
-        <div class="grid-item"><svg id="container13" height="100" width="150">
-            <g id="body13" transform="translate(0,0)"></g>
-        </svg></div>
-
-        <div class="grid-item"><svg id="container14" height="100" width="150">
-            <g id="body14" transform="translate(0,0)"></g>
-        </svg></div>
-
-        <div class="grid-item"> <svg id="container15" height="100" width="150">
-            <g id="body15" transform="translate(0,0)"></g>
-        </svg></div>
-
-        <div class="grid-item"><svg id="container16" height="100" width="150">
-            <g id="body16" transform="translate(0,0)"></g>
-        </svg></div>
-
-        <div class="grid-item"> <svg id="container17" height="100" width="150">
-            <g id="body17" transform="translate(0,0)"></g>
-        </svg></div>
-
-        <div class="grid-item"><svg id="container18"height="100" width="150">
-            <g id="body18" transform="translate(0,0)"></g>
-        </svg></div>
-
-        <div class="grid-item"> <svg id="container19" height="100" width="150">
-            <g id="body19" transform="translate(0,0)"></g>
-        </svg></div>
-
-        <div class="grid-item"><svg id="container20" height="100" width="150">
-            <g id="body20" transform="translate(0,0)"></g>
-        </svg></div>
-
-        <div class="grid-item"><svg id="container21" height="100" width="150">
-            <g id="body21" transform="translate(0,0)"></g>
-        </svg></div>
-
-        <div class="grid-item"><svg id="container22" height="100" width="150">
-            <g id="body22" transform="translate(0,0)"></g>
-        </svg></div>
-
-        <!-- Bottom row contains labels for the small maps -->
-        <div class="grid-item"> <svg id="label1"height="50" width="150">
-            <g id="l1" transform="translate(0,0)"></g>
-        </svg> </div>
-        <div class="grid-item"> <svg id="label2"height="50" width="150">
-            <g id="l2" transform="translate(0,0)"></g>
-        </svg> </div>
-        <div class="grid-item"> <svg id="label3"height="50" width="150">
-            <g id="l3" transform="translate(0,0)"></g>
-        </svg> </div>
-        <div class="grid-item"><svg id="label4"height="50" width="150">
-            <g id="l4" transform="translate(0,0)"></g>
-        </svg> </div>
-        <div class="grid-item"> <svg id="label5"height="50" width="150">
-            <g id="l5" transform="translate(0,0)"></g>
-        </svg> </div>
-        <div class="grid-item"> <svg id="label6"height="50" width="150">
-            <g id="l6" transform="translate(0,0)"></g>
-        </svg> </div>
-        <div class="grid-item"> <svg id="label7"height="50" width="150">
-            <g id="l7" transform="translate(0,0)"></g>
-        </svg> </div>
-        <div class="grid-item"> <svg id="label8"height="50" width="150">
-            <g id="l8" transform="translate(0,0)"></g>
-        </svg> </div>
-        <div class="grid-item"> <svg id="label9"height="50" width="150">
-            <g id="l9" transform="translate(0,0)"></g>
-        </svg> </div>
-        <div class="grid-item"> <svg id="label10"height="50" width="150">
-            <g id="l10" transform="translate(0,0)"></g>
-        </svg> </div>
-        <div class="grid-item"> <svg id="label11"height="50" width="150">
-            <g id="l11" transform="translate(0,0)"></g>
-        </svg> </div>
-
-    </div>
-
-
-
-    <!-- Second grid container for the zoomed in view with maps-->
-    <div class = "grid-container2" id = detail>
-        <button type="button" id = "button">Back to Overview</button>
-       <!-- Container for the consumption map -->
-        <div class="grid-item2">
-            <svg id="container24" height="450" width="600"transform="translate(0,0)">
-                <g id="body24" transform="translate(0,0)"></g>
-            </svg>
-        </div>
-
+    <!-- Zoomed in view with maps -->
+    <div id="detail">
+        <button type="button" id="button">Back to Overview</button>
+        <!-- Container for the consumption map -->
+        <svg id="container24" viewBox="15 35 570 415"><g id="body24"></g></svg>
         <!-- Container for the food type label -->
-        <div class="grid-item2">
-            <svg id="container29" height="50" width="600"transform="translate(0,0)">
-                <g id="body29" transform="translate(0,0)"></g>
-            </svg>
-        </div>
-
+        <svg id="container29" viewBox="0 5 600 30"><g id="body29"></g></svg>
         <!-- Container for the emissions map -->
-        <div class="grid-item2">
-            <svg id="container25" height="450" width="600"transform="translate(0,0)">
-                <g id="body25" transform="translate(0,0)"></g>
-            </svg>
-        </div>
+        <svg id="container25" viewBox="15 35 570 415"><g id="body25"></g></svg>
     </div>
 
     <!-- Container for the bar graph -->
-    <div class = "bar-graph" id = bar-graph>
-        <svg id="container23" height="950" width="1800">
-            <g id="body23" transform="translate(200,200)"></g>
-        </svg>
+    <div id="bar-graph">
+        <svg id="container23" viewBox="204 172 910 556"><g id="body23" transform="translate(200,200)"></g></svg>
     </div>
 
 </div>
@@ -450,6 +387,7 @@ https://codepen.io/medeirosrich/pen/bvRORN
             body.append("text")
                 .attr("class", "title")
                 .attr("transform", "translate(75, 30)")
+                .attr("text-anchor", "middle")
                 .style("font-size", "20")
                 .style("font-weight", "bold")
                 .text(shape_list[foodid]);
@@ -491,10 +429,7 @@ https://codepen.io/medeirosrich/pen/bvRORN
          */
         var showMapData = function (foodid) {
 
-            d3.selectAll('.grid-container').style("visibility","collapse") //Hide small multiple view
-            d3.selectAll('.grid-container2').style("visibility","visible") //Show zoomed in view
-
-            d3.selectAll("#bar-graph").style("left", "700") //Move the bar graph over the the right.
+            d3.select("body").classed("zoomed", true) //Swap the small multiples for the zoomed in maps.
 
             // Add the Food label to the zoomed in maps.
             let label = d3.select("#body29")
@@ -908,9 +843,7 @@ https://codepen.io/medeirosrich/pen/bvRORN
 
         //Goes back to the initial overview.
         function showOverview(){
-            d3.selectAll('.grid-container').style("visibility","visible")
-            d3.selectAll('.grid-container2').style("visibility","collapse")
-            d3.selectAll("#bar-graph").style("left", "100")
+            d3.select("body").classed("zoomed", false)
             selectedCountry = "allCountries";
             plotBars();
         }
